@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bgpt"
+version = "0.1.0"
+description = "A CLI tool to convert natural language to bash commands using OpenAI."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+  { name="Jonathan Radas", email="jonathan.radas@uni.muenster.de" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "openai>=1.0",
+]
+
+[project.scripts]
+bgpt = "bgpt.main:main_cli"
+
+[project.urls]
+Homepage = "https://github.com/jorado/bgpt" # Placeholder
+Issues = "https://github.com/jorado/bgpt/issues" # Placeholder
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-mock"
+]
+
+[tool.setuptools.packages.find]
+where = ["bgpt"]
