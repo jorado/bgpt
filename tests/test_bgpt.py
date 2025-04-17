@@ -11,12 +11,11 @@ def strip_ansi(text):
     print(f"stripped text before return: {stripped_text}")
     return stripped_text
 
-@patch("os.getenv", return_value="test_api_key")
 @patch("requests.post")
 @patch("builtins.input", side_effect=["a", "some clarification", ""])
 @patch("bgpt.main.process_command")
 @patch("sys.argv", ["bgpt", "create folder test_folder"])
-def test_create_folder_ai_clarify(mock_process_command, mock_input, mock_requests_mock, mock_getenv, capsys):
+def test_create_folder_ai_clarify(mock_process_command, mock_input, mock_requests_mock, capsys):
     mock_response1 = MagicMock()
     mock_response1.json.return_value = {
         "choices": [{"message": {"content": "mkdir test_folder"}}]
