@@ -5,7 +5,7 @@ A command-line tool that translates natural language commands into bash commands
 ## Installation
 
 ```bash
-pip install .
+pip install bgpt
 ```
 
 ## Usage
