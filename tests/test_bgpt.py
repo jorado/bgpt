@@ -1,6 +1,3 @@
-import os
-import pytest
-import sys
 from unittest.mock import patch, MagicMock
 from bgpt.main import main_cli
 import re
@@ -15,6 +12,7 @@ def strip_ansi(text):
 @patch("builtins.input", side_effect=["a", "some clarification", ""])
 @patch("bgpt.main.process_command")
 @patch("sys.argv", ["bgpt", "create folder test_folder"])
+@patch.dict('os.environ', {'OPENAI_API_KEY': 'test_key'})
 def test_create_folder_ai_clarify(mock_process_command, mock_input, mock_requests_mock, capsys):
     mock_response1 = MagicMock()
     mock_response1.json.return_value = {
@@ -40,6 +38,7 @@ def test_create_folder_ai_clarify(mock_process_command, mock_input, mock_request
 @patch("builtins.input", side_effect=[""])  # Simulate pressing Enter to execute
 @patch("requests.post")
 @patch("bgpt.main.process_command")
+@patch.dict('os.environ', {'OPENAI_API_KEY': 'sk-test_key'})
 def test_bgpt_command_no_edit(mock_process_command, mock_requests_mock, mock_input, capsys):
     mock_response = MagicMock()
     mock_response.json.return_value = {

@@ -35,7 +35,8 @@ Issues = "https://github.com/jorado/bgpt/issues" # Placeholder
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pytest-mock"
+    "pytest-mock",
+    "ruff"
 ]
 
 [tool.setuptools.packages.find]

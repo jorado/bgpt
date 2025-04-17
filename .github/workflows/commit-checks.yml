@@ -1,0 +1,23 @@
+name: Commit Checks
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  test-lint:
+    name: Test and Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.12'
+    - name: Install dependencies
+      run: pip install -e .[dev]
+    - name: Run linter with ruff
+      run: ruff check .
+    - name: Run tests with pytest
+      run: pytest
