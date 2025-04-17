@@ -32,7 +32,7 @@ def test_create_folder_ai_clarify(mock_process_command, mock_input, mock_request
     assert "Generated bash command: mkdir test_folder" in clean_output
     assert "Generated bash command: mkdir test_folder_acl" in clean_output
     # Assert that process_command was called with the second command
-    mock_process_command.assert_called_with("mkdir test_folder_acl")
+    mock_process_command.assert_called_with("mkdir test_folder_acl", "create folder test_folder some clarification")
 
 @patch("sys.argv", ["bgpt", "ls"])
 @patch("builtins.input", side_effect=[""])  # Simulate pressing Enter to execute
@@ -50,7 +50,7 @@ def test_bgpt_command_no_edit(mock_process_command, mock_requests_mock, mock_inp
     captured = capsys.readouterr()
     clean_output = strip_ansi(captured.out)
     assert "Generated bash command: ls" in clean_output
-    mock_process_command.assert_called_with("ls")
+    mock_process_command.assert_called_with("ls", "ls")
 
 def test_strip_ansi():
     text_with_ansi = "\x1b[31mThis is red text\x1b[0m"
