@@ -1,6 +1,6 @@
 import argparse
 import os
-import openai
+import requests
 import subprocess
 
 # ANSI Color Codes
@@ -25,16 +25,23 @@ def main_cli():
         return
 
     try:
-        client = openai.OpenAI(api_key=api_key, base_url=base_url if base_url else None)
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        data = {
+            "model": model,
+            "messages": [
                 {"role": "system", "content": "You are a bgpt that translates natural language commands into bash."},
                 {"role": "user", "content": "Only respond with the bash command, do not include any other text or explanations. E.g.: if I ask: 'Create a folder with the name test-folder', you must only output: 'mkdir test-folder'. \n \n " + command_text},
             ],
-            temperature=0.1,
-        )
-        bash_command = response.choices[0].message.content.strip()
+            "temperature": 0.1,
+        }
+        api_url = base_url + "/chat/completions" if base_url else "https://api.openai.com/v1/chat/completions"
+        response = requests.post(api_url, headers=headers, json=data)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+
+        bash_command = response.json()['choices'][0]['message']['content'].strip()
 
         print(f"Generated bash command: {CYAN}{bash_command}{RESET}")
         prompt = f"{YELLOW}Execute command? {RESET}(press Enter to execute, 'a' to edit with AI, or any other key to cancel):"
@@ -46,15 +53,22 @@ def main_cli():
             clarification_text = input(f"{YELLOW}Enter desired changes in natural language: {RESET}")
             new_command_text = command_text + " " + clarification_text
             try:
-                response = client.chat.completions.create(
-                    model=model, # Or another suitable model
-                    messages=[
+                headers = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                }
+                data = {
+                    "model": model,
+                    "messages": [
                         {"role": "system", "content": "You are a bgpt that translates natural language commands into bash."},
                         {"role": "user", "content": "Only respond with the bash command, do not include any other text or explanations. E.g.: if I ask: 'Create a folder with the name test-folder', you must only output: 'mkdir test-folder'. \n \n " + new_command_text},
                     ],
-                    temperature=0.1,
-                )
-                bash_command = response.choices[0].message.content.strip()
+                    "temperature": 0.1,
+                }
+
+                response = requests.post(api_url, headers=headers, json=data)
+                response.raise_for_status()  # Raise an exception for HTTP errors
+                bash_command = response.json()['choices'][0]['message']['content'].strip()
                 print(f"Generated bash command: {CYAN}{bash_command}{RESET}")
                 prompt = f"{YELLOW}Execute command? {RESET}(press Enter to execute, any other key to cancel):"
                 user_choice = input(prompt).lower()
@@ -66,15 +80,15 @@ def main_cli():
                 else: # Cancel
                     print(f"{YELLOW}Command execution cancelled.{RESET}")
 
-            except openai.APIError as e:
-                print(f"{RED}OpenAI API error: {e}{RESET}")
+            except requests.exceptions.RequestException as e:
+                print(f"{RED}API request error: {e}{RESET}")
             except Exception as e:
                 print(f"{RED}An error occurred: {e}{RESET}")
         else: # Cancel
             print(f"{YELLOW}Command execution cancelled.{RESET}")
 
-    except openai.APIError as e:
-        print(f"{RED}OpenAI API error: {e}{RESET}")
+    except requests.exceptions.RequestException as e:
+        print(f"{RED}API request error: {e}{RESET}")
     except Exception as e:
         print(f"{RED}An unexpected error occurred: {e}{RESET}")
 
