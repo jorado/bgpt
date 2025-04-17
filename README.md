@@ -13,11 +13,11 @@ pip install .
 Before using `bgpt`, make sure you have the `OPENAI_API_KEY` environment variable set with your OpenAI API key. You can also set the `OPENAI_BASE_URL` environment variable if you are using a custom OpenAI endpoint, and the `LLM_MODEL` environment variable to change the model. The default model is GPT-4.1-mini.
 
 Example:
-\`\`\`bash
+```bash
 export OPENAI_API_KEY="sk-..."
 export OPENAI_BASE_URL="https://api.openai.com/v1"
 export LLM_MODEL="GPT-4.1-mini"
-\`\`\`
+```
 
 ```bash
 bgpt <natural language command>
