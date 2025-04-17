@@ -37,7 +37,7 @@ def main_cli():
         bash_command = response.choices[0].message.content.strip()
 
         print(f"Generated bash command: {CYAN}{bash_command}{RESET}")
-        prompt = f"{YELLOW}Execute command? (press Enter to execute, 'a' to edit with AI, or any other key to cancel): {RESET}"
+        prompt = f"{YELLOW}Execute command? {RESET}(press Enter to execute, 'a' to edit with AI, or any other key to cancel):"
         user_choice = input(prompt).lower()
 
         if user_choice == "": # Enter - Execute
@@ -56,7 +56,7 @@ def main_cli():
                 )
                 bash_command = response.choices[0].message.content.strip()
                 print(f"Generated bash command: {CYAN}{bash_command}{RESET}")
-                prompt = f"{YELLOW}Execute command? (press Enter to execute, 'a' to edit with AI, or any other key to cancel): {RESET}"
+                prompt = f"{YELLOW}Execute command? {RESET}(press Enter to execute, any other key to cancel):"
                 user_choice = input(prompt).lower()
 
                 if user_choice == "": # Enter - Execute
@@ -80,19 +80,14 @@ def main_cli():
 
 def process_command(command):
     try:
-        process = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10) # Add timeout
+        process = subprocess.run(command, shell=True, capture_output=True, text=True) 
         if process.returncode == 0:
-            print(f"{GREEN}Command executed successfully.{RESET}")
+            print(f"{GREEN}> {command} {RESET}")
         if process.stdout:
-            print(f"{BLUE}Output:{RESET}")
             print(process.stdout)
-        else:
-            print(f"{RED}Command failed with exit code: {process.returncode}{RESET}")
         if process.stderr:
             print(f"{RED}Error output:{RESET}")
             print(process.stderr)
-    except subprocess.TimeoutExpired:
-        print(f"{RED}Command timed out after 10 seconds.{RESET}")
     except FileNotFoundError:
         print(f"{RED}Command not found: {command}{RESET}")
     except Exception as e:
