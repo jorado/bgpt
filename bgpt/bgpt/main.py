@@ -1,6 +1,7 @@
 import argparse
 import os
-import requests
+import urllib.request
+import json
 import subprocess
 
 # ANSI Color Codes
@@ -24,10 +25,12 @@ def get_bash_command_from_api(command_text, model, api_key, base_url):
         ],
         "temperature": 0.1,
     }
-    api_url = base_url + "/chat/completions" if base_url else "https://api.openai.com/v1/chat/completions"
-    response = requests.post(api_url, headers=headers, json=data)
-    response.raise_for_status()
-    return response.json()['choices'][0]['message']['content'].strip()
+    api_url = base_url + "/chat/completions"
+    data = json.dumps(data).encode('utf-8')
+    req = urllib.request.Request(api_url, data=data, headers=headers, method='POST')
+    with urllib.request.urlopen(req) as response:
+        response_data = response.read().decode('utf-8')
+    return json.loads(response_data)['choices'][0]['message']['content'].strip()
 
 def get_user_choice(bash_command):
     print(f"Generated bash command: {CYAN}{bash_command}{RESET}")
@@ -42,7 +45,7 @@ def main_cli():
 
     api_key = os.getenv("OPENAI_API_KEY")
     model = os.getenv("LLM_MODEL", "GPT-4.1-mini")
-    base_url = os.getenv("OPENAI_BASE_URL")
+    base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1") # Set default base_url
     if not api_key:
         print(f"{RED}Error: OPENAI_API_KEY environment variable not set. Please set OPENAI_API_KEY environment variable.{RESET}")
         return
@@ -62,7 +65,7 @@ def main_cli():
                 print(f"{YELLOW}Command execution cancelled.{RESET}")
                 break
 
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         print(f"{RED}API request error: {e}. Check your OPENAI_API_KEY and BASE_URL.{RESET}")
     except Exception as e:
         print(f"{RED}An unexpected error occurred: {e}{RESET}")
