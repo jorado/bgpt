@@ -29,11 +29,6 @@ def get_bash_command_from_api(command_text, model, api_key, base_url):
     response.raise_for_status()
     return response.json()['choices'][0]['message']['content'].strip()
 
-def get_user_choice(bash_command):
-    print(f"Generated bash command: {CYAN}{bash_command}{RESET}")
-    prompt = f"{YELLOW}Execute command? {RESET}(press Enter to execute, 'a' to edit with AI, or any other key to cancel):"
-    return input(prompt).lower()
-
 def main_cli():
     parser = argparse.ArgumentParser(description="bgpt: Convert natural language to bash commands")
     parser.add_argument("command_text", nargs="+", help="Natural language command to convert to bash")
@@ -49,39 +44,16 @@ def main_cli():
 
     try:
         bash_command = get_bash_command_from_api(command_text, model, api_key, base_url)
-        while True:
-            user_choice = get_user_choice(bash_command)
-            if user_choice == "":  # Enter - Execute
-                process_command(bash_command, command_text)
-                break
-            elif user_choice == 'a':  # edit with AI
-                clarification_text = input(f"{YELLOW}Enter desired changes in natural language: {RESET}")
-                command_text += " " + clarification_text
-                bash_command = get_bash_command_from_api(command_text, model, api_key, base_url)
-            else:  # Cancel
-                print(f"{YELLOW}Command execution cancelled.{RESET}")
-                break
+        print(f"{CYAN}{bash_command}{RESET}")  # Print the bash command
 
     except requests.exceptions.RequestException as e:
-        print(f"{RED}API request error: {e}. Check your OPENAI_API_KEY and BASE_URL.{RESET}")
+        # Print API errors to stderr
+        print(f"{RED}API request error: {e}. Check your OPENAI_API_KEY and BASE_URL.{RESET}", file=os.sys.stderr)
     except Exception as e:
-        print(f"{RED}An unexpected error occurred: {e}{RESET}")
+        # Print other unexpected errors to stderr
+        print(f"{RED}An unexpected error occurred: {e}{RESET}", file=os.sys.stderr)
 
-
-def process_command(command, original_command_text):
-    try:
-        process = subprocess.run(command, shell=True, capture_output=True, text=True)
-        if process.returncode == 0:
-            print(f"{GREEN}> {command} {RESET}")
-        if process.stdout:
-            print(process.stdout)
-        if process.stderr:
-            print(f"{RED}Error output for command: {original_command_text}:{RESET}") # Include original command text in error message
-            print(process.stderr)
-    except FileNotFoundError:
-        print(f"{RED}Command not found: {command}{RESET}")
-    except Exception as e:
-        print(f"{RED}Error executing command: {e}{RESET}")
+# No process_command function here anymore
 
 if __name__ == "__main__":
     main_cli()
